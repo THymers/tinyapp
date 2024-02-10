@@ -15,13 +15,15 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: /* What goes here? */ };
+  const shortID = req.params.id;
+  const longURL = urlDatabase[shortID]; // Accessing the long URL using the short ID from urlDatabase
+  const templateVars = { id: shortID, longURL: longURL };
   res.render("urls_show", templateVars);
 });
 
-//  app.get("/", (req, res) => {
-//   res.send("Hello!");/
-// });
+app.get("/", (req, res) => {
+  res.send("Hello!");/
+ });
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
