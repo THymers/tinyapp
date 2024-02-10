@@ -16,26 +16,18 @@
     <title>TinyApp</title>
   </head>
   <body>
-    <main style="margin: 1em">
-      <h3>My URLs</h3>
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Short URL ID</th>
-            <th scope="col">Long URL</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% for (let id in urls) { %>
-          <tr>
-            <td><%= id %></td>
-            <td><%= urls[id] %></td>
-          </tr>
-          <% } %>
-        </tbody>
-      </table>
-    </main>
-    <!-- Bootstrap JS -->
+    <h1>URLs List</h1>
+    <ul>
+      <% Object.keys(urls).forEach(function(shortURL) { %>
+      <li>
+        <a href="<%= urls[shortURL] %>"><%= shortURL %></a> - <%= urls[shortURL]
+        %>
+      </li>
+      <% }); %>
+    </ul>
+
+    <h2>Shorten a New URL</h2>
+    <a href="#">Shorten a New URL</a>
     <script
       src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
       integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

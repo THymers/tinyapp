@@ -22,8 +22,8 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Hello!");/
- });
+  res.send("Hello!");
+});
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
