@@ -29,7 +29,11 @@ app.post("/urls/:id/delete", (req, res) => {
   const shortID = req.params.id;
   if (urlDatabase[shortID]) {
     delete urlDatabase[shortID];
-  res.redirect("/urls");
+    res.redirect("/urls");
+  } else {
+    // if the URL does not exist
+    res.status(404).send("URL not found");
+  }
 });
 
 //define routes
