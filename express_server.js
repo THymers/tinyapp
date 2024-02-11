@@ -8,12 +8,19 @@ const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
 };
-
+//middleware to parse the body
+app.use(express.urlencoded({ extended: true }));
+//define the route
+app.post("/urls", (req, res) => {
+  console.log(req.body); // Log the POST request body to the console
+  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+});
+//routes
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
-// GET route to show form
+// GET route to show page
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
