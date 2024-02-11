@@ -14,6 +14,19 @@
       crossorigin="anonymous"
     />
     <title>TinyApp</title>
+    <style>
+      .delete-button {
+        color: red;
+        border: 2px solid red;
+        background-color: transparent;
+        padding: 0.5em 1em;
+        cursor: pointer;
+      }
+
+      .delete-button:hover {
+        background-color: rgba(255, 0, 0, 0.1);
+      }
+    </style>
   </head>
   <body>
     <%- include('partials/_header') %>
@@ -23,10 +36,12 @@
       <li>
         <a href="<%= urls[shortURL] %>"><%= shortURL %></a> - <%= urls[shortURL]
         %>
+        <form method="POST" action="/urls/<%= shortURL %>/delete">
+          <button type="submit" class="delete-button">Delete</button>
+        </form>
       </li>
       <% }); %>
     </ul>
-
     <h2>Shorten a New URL</h2>
     <a href="#">Shorten a New URL</a>
     <script
