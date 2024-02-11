@@ -27,6 +27,8 @@ function generateRandomString() {
 // POST route to remove URL
 app.post("/urls/:id/delete", (req, res) => {
   const shortID = req.params.id;
+  if (urlDatabase[shortID]) {
+    delete urlDatabase[shortID];
   res.redirect("/urls");
 });
 
