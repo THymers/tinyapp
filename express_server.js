@@ -25,9 +25,15 @@ function generateRandomString() {
 }
 //define routes
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  const longURL = req.body.longURL;
+  const shortURL = generateRandomString();
+  urlDatabase[shortURL] = longURL;
+  res.redirect(`/urls/${shortURL}`); // Redirect to /urls/:id
 });
+// app.post("/urls", (req, res) => {
+//   console.log(req.body); // Log the POST request body to the console
+//   res.send("Ok"); // Respond with 'Ok' (we will replace this)
+// });
 
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
