@@ -37,7 +37,15 @@
     </style>
   </head>
   <body>
-    <% include('partials/_header') %>
+ <% include('partials/_header') %>
+    <form action="/login" method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" /><br />
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" /><br />
+        <button type="submit" class="login">Login</button>
+    </form>
+</body>
     <h1>URLs List</h1>
     <ul>
       <% Object.keys(urls).forEach(function(shortURL) { %>

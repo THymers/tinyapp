@@ -24,6 +24,13 @@ function generateRandomString() {
   return result;
 }
 
+// post route for login
+app.post("/login", (req, res) => {
+  const { username } = req.body;
+  res.cookie("username", username);
+  res.redirect("/urls");
+});
+
 // POST route to remove URL
 app.post("/urls/:id/delete", (req, res) => {
   const shortID = req.params.id;
@@ -45,7 +52,7 @@ app.post("/urls", (req, res) => {
 });
 
 //updates URL resource
-app.post("/urls/:shortURL/edit", (req, res) => {
+app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const newLongURL = req.body.newLongURL;
   const url = urlDatabase[shortURL];
