@@ -34,8 +34,8 @@ function generateRandomString() {
 
 // post route for login
 app.post("/login", (req, res) => {
-  const { username } = req.body;
-  res.cookie("username", username);
+  const { userID } = req.body;
+  res.cookie("username", userID);
   res.redirect("/urls");
 });
 
@@ -84,7 +84,7 @@ function urlsForUser(id) {
 app.get("/urls", (req, res) => {
   const templateVars = {
     username: req.cookies["username"],
-    urls: urlDatabase,
+    urlsForUser: urlsForUser(req.cookies["username"]),
   };
   res.render("urls_index", templateVars);
 });
@@ -100,19 +100,19 @@ app.get("/urls/new", (req, res) => {
 
 //new route to render urls_show.ejs
 app.get("/urls/:id", (req, res) => {
-  const givenID = req.params.id;
-  const urlEntry = urlDatabase[givenID];
+  const userID = req.params.id;
+  const urlEntry = urlDatabase[userID];
 
   if (!req.cookies.userId) {
     return res.status(401).send("You are not logged.");
   }
-  if (urlEntry.ownerId !== req.cookies.userId) {
+  if (urlEntry.userId !== req.cookies.userId) {
     return res.status(403).send("You do not own this URL.");
   }
   const templateVars = {
-    id: givenID,
+    id: userID,
     longURL: urlEntry.longURL,
-    user: req.cookie.user,
+    user: req.cookies.user,
   };
   res.render("urls_show", templateVars);
 });
