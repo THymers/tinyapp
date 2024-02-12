@@ -1,16 +1,24 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const app = express();
 const PORT = 8080; // default port 8080
 
 //define url database
 const urlDatabase = {
-  b2xVn2: "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
+  b2xVn2: {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "aJ48lW",
+  },
+  "9sm5xK": {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 //set view engine and middleware
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 //generate a random short url id
 function generateRandomString() {
@@ -35,23 +43,15 @@ app.post("/login", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
   const shortID = req.params.id;
   if (urlDatabase[shortID]) {
-    delete urlDatabase[shortID];
+    delete urlDatabase[shortID].longURL;
     res.redirect("/urls");
   } else {
-    // if the URL does not exist
+    // If the URL does not exist
     res.status(404).send("URL not found");
   }
 });
 
-//define routes
-app.post("/urls", (req, res) => {
-  const longURL = req.body.longURL;
-  const shortURL = generateRandomString();
-  urlDatabase[shortURL] = longURL;
-  res.redirect(`/urls/${shortURL}`);
-});
-
-//updates URL resource
+//updates URL
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const newLongURL = req.body.newLongURL;
@@ -64,8 +64,22 @@ app.post("/urls/:shortURL", (req, res) => {
   }
 });
 
+function urlsForUser(id) {
+  const userURLs = {};
+  for (const shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === id) {
+      userURLs[shortURL] = urlDatabase[shortURL];
+    }
+  }
+  return userURLs;
+}
+
+//pass in the username
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = {
+    username: req.cookies["username"],
+    urls: urlDatabase,
+  };
   res.render("urls_index", templateVars);
 });
 
@@ -76,9 +90,20 @@ app.get("/urls/new", (req, res) => {
 
 //new route to render urls_show.ejs
 app.get("/urls/:id", (req, res) => {
-  const shortID = req.params.id;
-  const longURL = urlDatabase[shortID];
-  const templateVars = { id: shortID, longURL: longURL };
+  const givenID = req.params.id;
+  const urlEntry = urlDatabase[shortID];
+
+  if (!req.session.userId) {
+    return res.status(401).send("You are not logged in.");
+  }
+  if (urlEntry.ownerId !== req.session.userId) {
+    return res.status(403).send("You do not own this URL.");
+  }
+  const templateVars = {
+    id: givenID,
+    longURL: urlEntry.longURL,
+    user: req.session.user,
+  };
   res.render("urls_show", templateVars);
 });
 
