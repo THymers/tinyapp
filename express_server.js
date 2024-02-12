@@ -93,16 +93,16 @@ app.get("/urls/:id", (req, res) => {
   const givenID = req.params.id;
   const urlEntry = urlDatabase[shortID];
 
-  if (!req.session.userId) {
-    return res.status(401).send("You are not logged in.");
+  if (!req.cookie.userId) {
+    return res.status(401).send("You are not logged.");
   }
-  if (urlEntry.ownerId !== req.session.userId) {
+  if (urlEntry.ownerId !== req.cookie.userId) {
     return res.status(403).send("You do not own this URL.");
   }
   const templateVars = {
     id: givenID,
     longURL: urlEntry.longURL,
-    user: req.session.user,
+    user: req.cookie.user,
   };
   res.render("urls_show", templateVars);
 });
