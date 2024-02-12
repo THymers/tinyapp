@@ -41,7 +41,20 @@ app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = longURL;
-  res.redirect(`/urls/${shortURL}`); // Redirect to /urls/:id
+  res.redirect(`/urls/${shortURL}`);
+});
+
+//updates URL resource
+app.post("/urls/:shortURL/edit", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const newLongURL = req.body.newLongURL;
+  const url = urlDatabase[shortURL];
+  if (url) {
+    url.longURL = newLongURL;
+    res.redirect("/urls");
+  } else {
+    res.status(404).send("URL not found");
+  }
 });
 
 app.get("/urls", (req, res) => {
@@ -57,7 +70,7 @@ app.get("/urls/new", (req, res) => {
 //new route to render urls_show.ejs
 app.get("/urls/:id", (req, res) => {
   const shortID = req.params.id;
-  const longURL = urlDatabase[shortID]; // Accessing the long URL using the short ID from urlDatabase
+  const longURL = urlDatabase[shortID];
   const templateVars = { id: shortID, longURL: longURL };
   res.render("urls_show", templateVars);
 });

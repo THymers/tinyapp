@@ -10,23 +10,18 @@
     />
     <title>URL - TinyApp Example</title>
   </head>
-
   <body>
-    <%- include('partials/_header') %>
-    <div class="card text-center">
-      <div class="card-header"></div>
-      <div class="card-body">
-        <h5 class="card-title">TinyURL for: <%= longURL %></h5>
-        <p class="card-text">
-          Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
-        </p>
-      </div>
-      <div class="card-footer text-muted"></div>
+    <% include('partials/_header') %>
+    <div class="container mt-5">
+      <h1>URL Details</h1>
+      <p>Short URL: <%= url.shortURL %></p>
+      <p>Long URL: <%= url.longURL %></p>
+      <form action="/urls/<%= url.shortURL %>/edit" method="post">
+        <label for="newLongURL">New Long URL:</label>
+        <input type="text" id="newLongURL" name="newLongURL" required />
+        <button type="submit">Update</button>
+      </form>
     </div>
-
-    <!-- Link for creating a new URL (replace href="#" with your desired link) -->
-    <a href="#">Create a New URL</a>
-
     <!-- Bootstrap JS -->
     <script
       src="https://code.jquery.com/jquery-3.3.1.slim.min.js"

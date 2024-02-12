@@ -1,11 +1,11 @@
+<!-- urls_index.ejs -->
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>URLs List</title>
     <!-- Bootstrap CSS -->
     <link
       rel="stylesheet"
@@ -13,7 +13,6 @@
       integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
       crossorigin="anonymous"
     />
-    <title>TinyApp</title>
     <style>
       .delete-button {
         color: red;
@@ -22,14 +21,23 @@
         padding: 0.5em 1em;
         cursor: pointer;
       }
-
       .delete-button:hover {
         background-color: rgba(255, 0, 0, 0.1);
+      }
+      .edit-button {
+        color: blue;
+        border: 2px solid blue;
+        background-color: transparent;
+        padding: 0.5em 1em;
+        cursor: pointer;
+      }
+      .edit-button:hover {
+        background-color: rgba(0, 0, 255, 0.1);
       }
     </style>
   </head>
   <body>
-    <%- include('partials/_header') %>
+    <% include('partials/_header') %>
     <h1>URLs List</h1>
     <ul>
       <% Object.keys(urls).forEach(function(shortURL) { %>
@@ -39,11 +47,13 @@
         <form method="POST" action="/urls/<%= shortURL %>/delete">
           <button type="submit" class="delete-button">Delete</button>
         </form>
+        <a href="/urls/<%= shortURL %>/edit" class="edit-button">Edit</a>
       </li>
       <% }); %>
     </ul>
     <h2>Shorten a New URL</h2>
     <a href="#">Shorten a New URL</a>
+    <!-- Bootstrap JS -->
     <script
       src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
       integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
