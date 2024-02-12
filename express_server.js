@@ -43,7 +43,7 @@ app.post("/login", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
   const shortID = req.params.id;
   if (urlDatabase[shortID]) {
-    delete urlDatabase[shortID].longURL;
+    delete urlDatabase[shortID];
     res.redirect("/urls");
   } else {
     // If the URL does not exist
@@ -56,12 +56,18 @@ app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const newLongURL = req.body.newLongURL;
   const url = urlDatabase[shortURL];
-  if (url) {
-    url.longURL = newLongURL;
-    res.redirect("/urls");
-  } else {
-    res.status(404).send("URL not found");
+  if (!url) {
+    return res.status(404).send("URL not found");
   }
+  const loggedInUserID = req.cookies.user;
+  if (!loggedInUserID) {
+    return res.status(401).send("You are not logged in.");
+  }
+  if (url.userID !== loggedInUserID) {
+    return res.status(403).send("You do not own this URL.");
+  }
+  url.longURL = newLongURL;
+  res.redirect("/urls");
 });
 
 function urlsForUser(id) {
@@ -85,18 +91,22 @@ app.get("/urls", (req, res) => {
 
 // GET route to show page
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  if (req.cookies.user) {
+    res.render("urls_new");
+  } else {
+    return res.redirect("/login");
+  }
 });
 
 //new route to render urls_show.ejs
 app.get("/urls/:id", (req, res) => {
   const givenID = req.params.id;
-  const urlEntry = urlDatabase[shortID];
+  const urlEntry = urlDatabase[givenID];
 
-  if (!req.cookie.userId) {
+  if (!req.cookies.userId) {
     return res.status(401).send("You are not logged.");
   }
-  if (urlEntry.ownerId !== req.cookie.userId) {
+  if (urlEntry.ownerId !== req.cookies.userId) {
     return res.status(403).send("You do not own this URL.");
   }
   const templateVars = {
