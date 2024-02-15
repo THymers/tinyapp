@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcryptjs");
+const cookieSession = require('cookie-session')
 
 const app = express();
 const PORT = 8080; // default port 8080
@@ -34,6 +35,7 @@ const users = {
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(cookieSession);
 
 //generate a random short url id
 function generateRandomString() {
@@ -49,7 +51,7 @@ function generateRandomString() {
 
 // redirect logged in users
 const loggedIn = (req, res) => {
-  const user_id = req.cookies.user_id;
+  const user_id = req.session.user_id;
   
   if (user_id) {     
     res.redirect('/urls');
@@ -67,13 +69,10 @@ app.post("/login", (req, res) => {
   if (!user) {
   return res.status(403).send("User not found."); 
 }
-if (user.password !== password) {
-  return res.status(403).send("Wrong password.");
-}
  if (!bcrypt.compareSync(password, user.password)) {
     return res.status(403).send("Wrong password.");
   }
-  res.cookie("user_id", userID);
+  req.session.user_id = user.id;
   res.redirect("/urls");
 });
 
@@ -86,7 +85,7 @@ app.get("/login", loggedIn, (req, res) => {
 app.post("/urls/:id/delete", loggedIn, (req, res) => {
   const shortID = req.params.id;
   const urlData = urlDatabase[shortID];
-  const user_id = req.cookies.user_id;
+  const user_id = req.session.user_id;
   
   if (!urlData) {
     return res.status(404).send("URL not found");
@@ -131,7 +130,7 @@ app.get("/urls/:id/edit", (req, res) => {
 });
 
 app.get("/urls/:id", loggedIn, (req, res) => {
-  const user_id = req.cookies.user_id;
+  const user_id = req.session.user_id;
   const urlData = urlDatabase[req.params.id];
   
   if (!urlData) {
@@ -181,14 +180,14 @@ function urlsForUser(id) {
 
 //pass in the user ID
 app.get("/urls", loggedIn, (req, res) => {
-const user_id = req.cookies.user_id;
+const user_id = req.session.user_id;
   const user = users[user_id];
   
   if (!user) {
     return res.status(403).send("You must be signed in.");
   }
   const templateVars = {
-    user: users[req.cookies.user_id],
+    user: users[req.session.user_id;],
     urls: urlDatabase,
   };
   res.render("urls_index", templateVars);
@@ -197,7 +196,7 @@ const user_id = req.cookies.user_id;
 
 // GET route to show page
 app.get("/urls/new", loggedIn, (req, res) => {
-const user_id = req.cookies.user_id;
+const user_id = req.session.user_id;
   
 if (!user_id) {
     return res.redirect("/login");
@@ -207,18 +206,18 @@ if (!user_id) {
 
 //new route to render urls_show.ejs
 app.get("/urls/:id", (req, res) => {
-  const users[req.cookies.user_id];
+  const users[req.session.user_id;];
   const urlData = urlDatabase[req.params.id];
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id;) {
     return res.status(401).send("You are not logged in.");
   }
-  if (urlData.userID !== req.cookies.user_id) {
+  if (urlData.userID !== req.session.user_id;) {
     return res.status(403).send("You do not own this URL.");
   }
   const templateVars = {
-    id: req.cookies.user_id,
+    id: req.session.user_id;,
     longURL: urlData.longUrl,
-    user: req.cookies.user,
+    user: req.session.user_id;,
   };
   res.render("urls_show", templateVars);
 });
@@ -232,7 +231,7 @@ app.get("/urls/:id", (req, res) => {
 
 //post to logout and clear cookies
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  req.session.user_id = null;
   res.redirect("/login");
 });
 
@@ -258,7 +257,6 @@ app.post("/register", (req, res) => {
   const saltRounds = 10;
   const salt = bcrypt.genSaltSync(saltRounds);
   let hashedPassword = bcrypt.hashSync(password, salt);
-const newPassword = bcrypt.compareSync(password, hashedPassword);
     
 if (err) {
       return res.status(500).send("Error hashing password");
@@ -280,7 +278,7 @@ if (err) {
     password: hashedPassword,
   };
   users[userID] = newUser;
-  res.cookie("user_id", userID);
+  req.session.user_id = userID;
   res.redirect("/urls");
 });
 
