@@ -19,6 +19,9 @@
       </div>
       <% if (username) { %>
       <span class="navbar-text">Welcome, <%= username %></span>
+      <form method="POST" action="/logout">
+        <button type="submit" class="btn btn-link">Logout</button>
+      </form>
       <% } else { %>
       <form method="POST" action="/login">
         <input type="text" name="username" placeholder="username" />
