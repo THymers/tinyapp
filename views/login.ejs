@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Page</title>
+  </head>
+  <body>
+    <h1>Please login</h1>
+    <!-- Some way for users to login -->
+    <!-- Create a form, something that allows a user to input an email, and their password -->
+    <form action="/login" method="POST">
+      <label>Email:</label>
+      <input type="email" name="email" /><br />
+      <label>Password:</label>
+      <input type="password" name="password" /><br />
+      <!-- A type submit is used to submit information to somewhere -->
+      <!-- The type submit will send and submit the form to any FORM element its attached to -->
+      <!-- When you click the submit button, it will trigger the form -->
+      <input type="submit" value="Login" />
+    </form>
+  </body>
+</html>
