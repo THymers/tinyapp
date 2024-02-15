@@ -5,11 +5,11 @@ const PORT = 8080; // default port 8080
 
 //define url database
 const urlDatabase = {
-  b2xVn2: {
-    longURL: "http://www.lighthouselabs.ca",
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
     userID: "aJ48lW",
   },
-  "9sm5xK": {
+  i3BoGr: {
     longURL: "https://www.google.ca",
     userID: "aJ48lW",
   },
@@ -76,15 +76,22 @@ app.get("/login", loggedIn, (req, res) => {
 });
 
 // POST route to remove URL
-app.post("/urls/:id/delete", (req, res) => {
+app.post("/urls/:id/delete", loggedIn, (req, res) => {
   const shortID = req.params.id;
-  if (urlDatabase[shortID]) {
-    delete urlDatabase[shortID];
-    res.redirect("/urls");
-  } else {
-    // If the URL does not exist
-    res.status(404).send("URL not found");
+  const urlData = urlDatabase[shortID];
+  const user_id = req.cookies.user_id;
+  if (!urlData) {
+    return res.status(404).send("URL not found");
   }
+  if (!user_id) {
+    return res.status(401).send("Please log in to see URL");
+  }
+if (url.userID !== user_id) {
+    return res.status(403).send("You do not own this URL.");
+}
+  }
+  delete urlDatabase[shortID];
+  res.redirect("/urls");
 });
 
 //get/post to edit URL
@@ -101,7 +108,7 @@ app.post("/urls/:id", (req, res) => {
 
 app.get("/urls/:id/edit", (req, res) => {
   const id = req.params.id;
-  const urlData = urlDatabase[id];
+  const urlData = urlDatabase[id].longUrl;
   if (urlData) {
     res.render("urls_show", {
       id: id,
@@ -113,12 +120,18 @@ app.get("/urls/:id/edit", (req, res) => {
   }
 });
 
-app.get("/urls/:id", (req, res) => {
+app.get("/urls/:id", loggedIn, (req, res) => {
   const user_id = req.cookies.user_id;
   const urlData = urlDatabase[req.params.id];
   if (!urlData) {
     return res.status(404).send("URL not found");
   }
+  if (!user_id) {
+    return res.status(401).send("Please log in to see URL");
+  }
+if (url.userID !== user_id) {
+    return res.status(403).send("You do not own this URL.");
+}
   res.render("urls_show", { url: urlData, user_id: user_id });
 });
 
@@ -130,7 +143,7 @@ app.post("/urls/:shortURL", (req, res) => {
   if (!url) {
     return res.status(404).send("URL not found");
   }
-  const loggedInUserID = req.cookies.user;
+  const loggedInUserID = req.cookies.user_id;
   if (!loggedInUserID) {
     return res.status(401).send("You are not logged in.");
   }
