@@ -1,5 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const bcrypt = require("bcryptjs");
+
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -48,6 +50,7 @@ function generateRandomString() {
 // redirect logged in users
 const loggedIn = (req, res) => {
   const user_id = req.cookies.user_id;
+  
   if (user_id) {     
     res.redirect('/urls');
   } else {
@@ -59,13 +62,17 @@ const loggedIn = (req, res) => {
 // post route for login
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
-  const getUserByEmail(email);
-if (!user) {
+  const user = getUserByEmail(email);
+
+  if (!user) {
   return res.status(403).send("User not found."); 
 }
 if (user.password !== password) {
   return res.status(403).send("Wrong password.");
 }
+ if (!bcrypt.compareSync(password, user.password)) {
+    return res.status(403).send("Wrong password.");
+  }
   res.cookie("user_id", userID);
   res.redirect("/urls");
 });
@@ -80,6 +87,7 @@ app.post("/urls/:id/delete", loggedIn, (req, res) => {
   const shortID = req.params.id;
   const urlData = urlDatabase[shortID];
   const user_id = req.cookies.user_id;
+  
   if (!urlData) {
     return res.status(404).send("URL not found");
   }
@@ -98,6 +106,7 @@ if (url.userID !== user_id) {
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
   const newLongUrl = req.body.newLongUrl;
+  
   if (urlDatabase.hasOwnProperty(id)) {
     urlDatabase[id].longUrl = newLongUrl;
     res.redirect("/urls");
@@ -109,6 +118,7 @@ app.post("/urls/:id", (req, res) => {
 app.get("/urls/:id/edit", (req, res) => {
   const id = req.params.id;
   const urlData = urlDatabase[id].longUrl;
+  
   if (urlData) {
     res.render("urls_show", {
       id: id,
@@ -123,6 +133,7 @@ app.get("/urls/:id/edit", (req, res) => {
 app.get("/urls/:id", loggedIn, (req, res) => {
   const user_id = req.cookies.user_id;
   const urlData = urlDatabase[req.params.id];
+  
   if (!urlData) {
     return res.status(404).send("URL not found");
   }
@@ -140,10 +151,12 @@ app.post("/urls/:shortURL", (req, res) => {
   const shortUrl = req.params.shortUrl;
   const newLongUrl = req.body.newLongUrl;
   const url = urlDatabase[shortUrl];
+  
   if (!url) {
     return res.status(404).send("URL not found");
   }
   const loggedInUserID = req.cookies.user_id;
+  
   if (!loggedInUserID) {
     return res.status(401).send("You are not logged in.");
   }
@@ -157,6 +170,7 @@ app.post("/urls/:shortURL", (req, res) => {
 // Function to get URLs for a specific user
 function urlsForUser(id) {
   const userUrls = {};
+  
   for (const shortUrl in urlDatabase) {
     if (urlDatabase[shortUrl].userID === id) {
       userUrls[shortUrl] = urlDatabase[shortUrl];
@@ -169,6 +183,7 @@ function urlsForUser(id) {
 app.get("/urls", loggedIn, (req, res) => {
 const user_id = req.cookies.user_id;
   const user = users[user_id];
+  
   if (!user) {
     return res.status(403).send("You must be signed in.");
   }
@@ -183,7 +198,8 @@ const user_id = req.cookies.user_id;
 // GET route to show page
 app.get("/urls/new", loggedIn, (req, res) => {
 const user_id = req.cookies.user_id;
-  if (!user_id) {
+  
+if (!user_id) {
     return res.redirect("/login");
   }
     res.render("urls_new");
@@ -238,6 +254,15 @@ function getUserByEmail(email) {
 //Post register endpoint
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
+
+  const saltRounds = 10;
+  const salt = bcrypt.genSaltSync(saltRounds);
+  let hashedPassword = bcrypt.hashSync(password, salt);
+const newPassword = bcrypt.compareSync(password, hashedPassword);
+    
+if (err) {
+      return res.status(500).send("Error hashing password");
+    }
    if (!email || !password) {
     return res.status(400).send("Email or password missing");
   }
@@ -252,7 +277,7 @@ app.post("/register", (req, res) => {
   const newUser = {
     id: userID,
     email,
-    password,
+    password: hashedPassword,
   };
   users[userID] = newUser;
   res.cookie("user_id", userID);
