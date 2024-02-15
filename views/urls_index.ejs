@@ -16,29 +16,42 @@
     />
     <title>TinyApp</title>
   </head>
-   </head>
   <body>
-     <% include('partials/_header') %>
-    <main style="margin: 1em;">
-      <h3>My URLs</h3>
+    <h1>Urls List</h1>
+    <ul>
+      <% Object.keys(urls).forEach(function(shortUrl) { %>
+      <li>
+        <a href="<%= urls[shortUrl].longUrl %>"><%= shortUrl %></a> - <%=
+        urls[shortUrl].longUrl %>
+        <form method="POST" action="/urls/<%= shortUrl %>/delete">
+          <button type="submit" class="delete-button">Delete</button>
+        </form>
+        <a href="/urls/<%= shortUrl %>/edit" class="edit-button">Edit</a>
+      </li>
+      <% }); %>
+    </ul>
+    <h2>Shorten a New Url</h2>
+    <a href="#">Shorten a New Url</a>
+    <main style="margin: 1em">
+      <h3>My Urls</h3>
       <table class="table">
         <thead>
           <tr>
-            <th scope="col">Short URL ID</th>
-            <th scope="col">Long URL</th>
+            <th scope="col">Short Url ID</th>
+            <th scope="col">Long Url</th>
           </tr>
         </thead>
         <tbody>
           <% for (let id in urls) { %>
-            <tr>
-              <td><%= id %></td>
-              <td><%= urls[id] %></td>
-            </tr>
+          <tr>
+            <td><%= id %></td>
+            <td><%= urls[id].longUrl %></td>
+          </tr>
           <% } %>
         </tbody>
       </table>
     </main>
-        <!-- Bootstrap JS -->
+    <!-- Bootstrap JS -->
     <script
       src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
       integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
@@ -54,43 +67,27 @@
       integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
       crossorigin="anonymous"
     ></script>
-      </body>
-          <style>
-      .delete-button {
-        color: red;
-        border: 2px solid red;
-        background-color: transparent;
-        padding: 0.5em 1em;
-        cursor: pointer;
-      }
-      .delete-button:hover {
-        background-color: rgba(255, 0, 0, 0.1);
-      }
-      .edit-button {
-        color: blue;
-        border: 2px solid blue;
-        background-color: transparent;
-        padding: 0.5em 1em;
-        cursor: pointer;
-      }
-      .edit-button:hover {
-        background-color: rgba(0, 0, 255, 0.1);
-      }
-    </style>
-    
-    <h1>URLs List</h1>
-    <ul>
-      <% Object.keys(urls).forEach(function(shortURL) { %>
-      <li>
-        <a href="<%= urls[shortURL].longURL %>"><%= shortURL %></a> - <%=
-        urls[shortURL].longURL %>
-        <form method="POST" action="/urls/<%= shortURL %>/delete">
-          <button type="submit" class="delete-button">Delete</button>
-        </form>
-        <a href="/urls/<%= shortURL %>/edit" class="edit-button">Edit</a>
-      </li>
-      <% }); %>
-    </ul>
-    <h2>Shorten a New URL</h2>
-    <a href="#">Shorten a New URL</a>
+  </body>
+  <style>
+    .delete-button {
+      color: red;
+      border: 2px solid red;
+      background-color: transparent;
+      padding: 0.5em 1em;
+      cursor: pointer;
+    }
+    .delete-button:hover {
+      background-color: rgba(255, 0, 0, 0.1);
+    }
+    .edit-button {
+      color: blue;
+      border: 2px solid blue;
+      background-color: transparent;
+      padding: 0.5em 1em;
+      cursor: pointer;
+    }
+    .edit-button:hover {
+      background-color: rgba(0, 0, 255, 0.1);
+    }
+  </style>
 </html>

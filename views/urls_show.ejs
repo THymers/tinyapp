@@ -16,7 +16,7 @@
     <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
-        <h5 class="card-title">TinyURL for: <%= longURL %></h5>
+        <h5 class="card-title">TinyURL for: <%= longUrl %></h5>
         <p class="card-text">
           Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
         </p>
@@ -24,13 +24,13 @@
       <div class="card-footer text-muted"></div>
     </div>
     <h1>URL Details</h1>
-    <p>Short URL: <%= url.shortURL %></p>
-    <p>Long URL: <%= url.longURL %></p>
+    <p>Short Url: <%= url.shortUrl %></p>
+    <p>Long Url: <%= url.longUrl %></p>
 
     <h1>Edit URL</h1>
-    <form action="/urls/<%= url.shortURL %>/edit" method="post">
-      <label for="newLongURL">New Long URL:</label>
-      <input type="text" id="newLongURL" name="newLongURL" required />
+    <form action="/urls/<%= url.shortUrl %>/edit" method="post">
+      <label for="newLongUrl">New Long Url:</label>
+      <input type="text" id="newLongUrl" name="newLongUrl" required />
       <button type="submit">Update</button>
     </form>
     <!-- Bootstrap JS -->
