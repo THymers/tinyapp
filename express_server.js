@@ -48,6 +48,13 @@ function generateRandomString() {
 // post route for login
 app.post("/login", (req, res) => {
   const { userID } = req.body;
+  const getUserByEmail(email);
+if (!user) {
+  return res.status(403).send("User not found."); 
+}
+if (user,password !== password) {
+  return res.status(403).send("Wrong password.");
+}
   res.cookie("user_id", userID);
   res.redirect("/urls");
 });
@@ -96,7 +103,7 @@ app.get("/urls/:id/edit", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  const username = req.cookies.user_id;
+  const user_id = req.cookies.user_id;
   const urlData = urlDatabase[req.params.id];
   if (!urlData) {
     return res.status(404).send("URL not found");
@@ -134,7 +141,7 @@ function urlsForUser(id) {
   return userURLs;
 }
 
-//pass in the username
+//pass in the user ID
 app.get("/urls", (req, res) => {
   const templateVars = {
     user: users[req.cookies.user_id],
@@ -181,7 +188,7 @@ app.get("/urls/:id", (req, res) => {
 //post to logout and clear cookies
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 //GET register user
