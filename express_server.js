@@ -184,9 +184,27 @@ app.get("/register", (req, res) => {
   res.render("register");
 });
 
+// check for current users' email
+function getUserByEmail(email) {
+  for (const userId in users) {
+    if (users[userId].email === email) {
+      return users[userId];
+    }
+  }
+  return null;
+}
+
 //Post register endpoint
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
+   if (!email || !password) {
+    return res.status(400).send("Email or password missing");
+  }
+    for (const userId in users) {
+    if (users[userId].email === email) {
+      return res.status(400).send("Email already in use");
+    }
+  }
   // Generate a random user ID
   const userID = generateRandomString();
   // Create a new user object
