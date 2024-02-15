@@ -45,6 +45,17 @@ function generateRandomString() {
   return result;
 }
 
+// redirect logged in users
+const loggedIn = (req, res, next) => {
+  const user_id = req.cookies.user_id;
+  if (user_id) {     
+    res.redirect('/urls');
+  } else {
+    res.status(403).send("You must be logged in to access this page.");
+  }
+};
+
+
 // post route for login
 app.post("/login", (req, res) => {
   const { userID } = req.body;
@@ -60,7 +71,7 @@ if (user,password !== password) {
 });
 
 //get route for login
-app.get("/login", (req, res) => {
+app.get("/login", loggedIn, (req, res) => {
   res.render("login");
 });
 
@@ -142,28 +153,33 @@ function urlsForUser(id) {
 }
 
 //pass in the user ID
-app.get("/urls", (req, res) => {
+app.get("/urls", loggedIn, (req, res) => {
+const user_id = req.cookies.user_id;
+  const user = users[user_id];
+  if (!user) {
+    return res.status(403).send("You must be signed in.");
+  }
   const templateVars = {
     user: users[req.cookies.user_id],
     urls: urlDatabase,
   };
   res.render("urls_index", templateVars);
-});
+}
+);
 
 // GET route to show page
-app.get("/urls/new", (req, res) => {
-  if (req.cookies.user) {
-    res.render("urls_new");
-  } else {
+app.get("/urls/new", loggedIn, (req, res) => {
+const user_id = req.cookies.user_id;
+  if (!user_id) {
     return res.redirect("/login");
   }
+    res.render("urls_new");
 });
 
 //new route to render urls_show.ejs
 app.get("/urls/:id", (req, res) => {
   const users[req.cookies.user_id];
   const urlData = urlDatabase[req.params.id];
-
   if (!req.cookies.user) {
     return res.status(401).send("You are not logged in.");
   }
@@ -192,8 +208,8 @@ app.post("/logout", (req, res) => {
 });
 
 //GET register user
-app.get("/register", (req, res) => {
-  res.render("register");
+app.get('/register', loggedIn, (req, res) => {
+  res.render('register');
 });
 
 // check for current users' email
