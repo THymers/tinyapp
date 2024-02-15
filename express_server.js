@@ -31,11 +31,17 @@ const users = {
   },
 };
 
+const { getUserByEmail } = require('./helper.js');
+
 //set view engine and middleware
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cookieSession);
+app.use(cookieSession({
+    name: 'session',
+    keys: ['key1', 'key2'],
+  })
+)
 
 //generate a random short url id
 function generateRandomString() {
@@ -64,7 +70,7 @@ const loggedIn = (req, res) => {
 // post route for login
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
-  const user = getUserByEmail(email);
+  const getUserByEmail(email, usersDatabase);
 
   if (!user) {
   return res.status(403).send("User not found."); 
@@ -154,7 +160,7 @@ app.post("/urls/:shortURL", (req, res) => {
   if (!url) {
     return res.status(404).send("URL not found");
   }
-  const loggedInUserID = req.cookies.user_id;
+  const loggedInUserID = req.session.user_id;
   
   if (!loggedInUserID) {
     return res.status(401).send("You are not logged in.");
@@ -187,7 +193,7 @@ const user_id = req.session.user_id;
     return res.status(403).send("You must be signed in.");
   }
   const templateVars = {
-    user: users[req.session.user_id;],
+    user: users[req.session.user_id],
     urls: urlDatabase,
   };
   res.render("urls_index", templateVars);
@@ -206,16 +212,17 @@ if (!user_id) {
 
 //new route to render urls_show.ejs
 app.get("/urls/:id", (req, res) => {
-  const users[req.session.user_id;];
+  const users[req.session.user_id];
   const urlData = urlDatabase[req.params.id];
-  if (!req.session.user_id;) {
+  
+  if (!req.session.user_id) {
     return res.status(401).send("You are not logged in.");
   }
-  if (urlData.userID !== req.session.user_id;) {
+  if (urlData.userID !== req.session.user_id) {
     return res.status(403).send("You do not own this URL.");
   }
   const templateVars = {
-    id: req.session.user_id;,
+    id: req.session.user_id,
     longURL: urlData.longUrl,
     user: req.session.user_id;,
   };
@@ -239,16 +246,6 @@ app.post("/logout", (req, res) => {
 app.get('/register', loggedIn, (req, res) => {
   res.render('register');
 });
-
-// check for current users' email
-function getUserByEmail(email) {
-  for (const userId in users) {
-    if (users[userId].email === email) {
-      return users[userId];
-    }
-  }
-  return null;
-}
 
 //Post register endpoint
 app.post("/register", (req, res) => {
