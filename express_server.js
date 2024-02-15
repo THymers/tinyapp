@@ -51,6 +51,41 @@ app.post("/urls/:id/delete", (req, res) => {
   }
 });
 
+//get/post to edit URL
+app.post("/urls/:id", (req, res) => {
+  const id = req.params.id;
+  const newLongURL = req.body.newLongURL;
+  if (urlDatabase.hasOwnProperty(id)) {
+    urlDatabase[id].longURL = newLongURL;
+    res.redirect("/urls");
+  } else {
+    res.status(404).send("URL not found");
+  }
+});
+
+app.get("/urls/:id/edit", (req, res) => {
+  const id = req.params.id;
+  const urlData = urlDatabase[id];
+  if (urlData) {
+    res.render("urls_show", {
+      id: id,
+      longURL: urlData.longURL,
+      shortURL: urlData.short,
+    });
+  } else {
+    res.status(404).send("URL not found");
+  }
+});
+
+app.get("/urls/:id", (req, res) => {
+  const username = req.cookies.username;
+  const urlData = urlDatabase[req.params.id];
+  if (!urlData) {
+    return res.status(404).send("URL not found");
+  }
+  res.render("urls_show", { url: urlData, username: username });
+});
+
 //updates URL
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
@@ -70,6 +105,7 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect("/urls");
 });
 
+// Function to get URLs for a specific user
 function urlsForUser(id) {
   const userURLs = {};
   for (const shortURL in urlDatabase) {
@@ -83,8 +119,8 @@ function urlsForUser(id) {
 //pass in the username
 app.get("/urls", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"],
-    urlsForUser: urlsForUser(req.cookies["username"]),
+    username: req.cookies.username,
+    urls: urlDatabase,
   };
   res.render("urls_index", templateVars);
 });
@@ -100,20 +136,27 @@ app.get("/urls/new", (req, res) => {
 
 //new route to render urls_show.ejs
 app.get("/urls/:id", (req, res) => {
-  const userID = req.params.id;
-  const urlEntry = urlDatabase[userID];
+  const username = req.params.id;
+  const urlData = urlDatabase[username];
 
-  if (!req.cookies.userId) {
-    return res.status(401).send("You are not logged.");
+  if (!req.cookies.user) {
+    return res.status(401).send("You are not logged in.");
   }
-  if (urlEntry.userId !== req.cookies.userId) {
+  if (urlData.username !== req.cookies.user) {
     return res.status(403).send("You do not own this URL.");
   }
   const templateVars = {
-    id: userID,
-    longURL: urlEntry.longURL,
+    id: username,
+    longURL: urlData.longURL,
     user: req.cookies.user,
   };
+  res.render("urls_show", templateVars);
+});
+
+app.get("/urls/:id", (req, res) => {
+  const shortID = req.params.id;
+  const longURL = urlDatabase[shortID];
+  const templateVars = { id: shortID, longURL: longURL };
   res.render("urls_show", templateVars);
 });
 

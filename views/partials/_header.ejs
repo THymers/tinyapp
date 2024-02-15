@@ -21,9 +21,10 @@
       <span class="navbar-text">Welcome, <%= username %></span>
       <% } else { %>
       <form method="POST" action="/login">
-        <input type="text" name="username" placeholder="Username" />
+        <input type="text" name="username" placeholder="username" />
         <input type="submit" value="Login" />
       </form>
+      <% } %>
     </div>
   </nav>
 </header>

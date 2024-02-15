@@ -1,11 +1,12 @@
-<!-- urls_index.ejs -->
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>URLs List</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
     <!-- Bootstrap CSS -->
     <link
       rel="stylesheet"
@@ -13,7 +14,48 @@
       integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
       crossorigin="anonymous"
     />
-    <style>
+    <title>TinyApp</title>
+  </head>
+   </head>
+  <body>
+     <% include('partials/_header') %>
+    <main style="margin: 1em;">
+      <h3>My URLs</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Short URL ID</th>
+            <th scope="col">Long URL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (let id in urls) { %>
+            <tr>
+              <td><%= id %></td>
+              <td><%= urls[id] %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </main>
+        <!-- Bootstrap JS -->
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous"
+    ></script>
+      </body>
+          <style>
       .delete-button {
         color: red;
         border: 2px solid red;
@@ -35,23 +77,13 @@
         background-color: rgba(0, 0, 255, 0.1);
       }
     </style>
-  </head>
-  <body>
- <% include('partials/_header') %>
-    <form action="/login" method="POST">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" /><br />
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" /><br />
-        <button type="submit" class="login">Login</button>
-    </form>
-</body>
+    
     <h1>URLs List</h1>
     <ul>
       <% Object.keys(urls).forEach(function(shortURL) { %>
       <li>
-        <a href="<%= urls[shortURL] %>"><%= shortURL %></a> - <%= urls[shortURL]
-        %>
+        <a href="<%= urls[shortURL].longURL %>"><%= shortURL %></a> - <%=
+        urls[shortURL].longURL %>
         <form method="POST" action="/urls/<%= shortURL %>/delete">
           <button type="submit" class="delete-button">Delete</button>
         </form>
@@ -61,21 +93,4 @@
     </ul>
     <h2>Shorten a New URL</h2>
     <a href="#">Shorten a New URL</a>
-    <!-- Bootstrap JS -->
-    <script
-      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-      crossorigin="anonymous"
-    ></script>
-  </body>
 </html>
