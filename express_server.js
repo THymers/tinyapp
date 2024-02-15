@@ -52,6 +52,11 @@ app.post("/login", (req, res) => {
   res.redirect("/urls");
 });
 
+//get route for login
+app.get("/login", (req, res) => {
+  res.render("login");
+});
+
 // POST route to remove URL
 app.post("/urls/:id/delete", (req, res) => {
   const shortID = req.params.id;
@@ -159,7 +164,7 @@ app.get("/urls/:id", (req, res) => {
     return res.status(403).send("You do not own this URL.");
   }
   const templateVars = {
-    id: username,
+    id: user_id,
     longURL: urlData.longURL,
     user: req.cookies.user,
   };
