@@ -2,9 +2,10 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcryptjs");
 const cookieSession = require("cookie-session");
+const { getUserByEmail } = require("./helpers.js");
 
 const app = express();
-const PORT = 8080; // default port 8080
+const PORT = 8080;
 
 //define url database
 const urlDatabase = {
@@ -36,8 +37,6 @@ const users = {
   },
 };
 
-const { getUserByEmail } = require("./helpers.js");
-
 //set view engine and middleware
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
@@ -62,12 +61,20 @@ function generateRandomString() {
   return result;
 }
 
-// redirect logged in users
+//Get route, redirect for login status
+app.get("/", (req, res) => {
+  if (req.session.user_id) {
+    res.redirect("/urls");
+  } else {
+    res.redirect("/login");
+  }
+});
+
+// // redirect logged in users
 const loggedIn = (req, res, next) => {
   const user_id = req.session.user_id;
-
   if (user_id) {
-    next(); // Continue to the next middleware or route handler
+    next();
   } else {
     res.status(403).send("You must be logged in to access this page.");
   }
@@ -83,8 +90,7 @@ app.post("/register", (req, res) => {
   const { email, password } = req.body;
 
   const saltRounds = 10;
-  const salt = bcrypt.genSaltSync(saltRounds);
-  const hashedPassword = bcrypt.hashSync(password, salt);
+  const hashedPassword = bcrypt.hashSync(password, saltRounds);
 
   if (!hashedPassword) {
     return res.status(500).send("Error hashing password");
@@ -97,9 +103,9 @@ app.post("/register", (req, res) => {
       return res.status(400).send("Email already in use");
     }
   }
-  // Generate a random user ID
-  const userID = generateRandomString();
+
   // Create a new user object
+  const userID = generateRandomString();
   const newUser = {
     id: userID,
     email,
@@ -120,15 +126,29 @@ app.post("/login", (req, res) => {
   }
   if (!bcrypt.compareSync(password, user.password)) {
     return res.status(403).send("Wrong password.");
-    console.log(email, password);
   }
   req.session.user_id = user.id;
   res.redirect("/urls");
 });
 
 //get route for login
-app.get("/login", loggedIn, (req, res) => {
+app.get("/login", (req, res) => {
   res.render("login");
+});
+
+// GET route to show page
+app.get("/urls/new", loggedIn, (req, res) => {
+  const user_id = req.session.user_id;
+  const user = users[user_id];
+
+  const templateVars = {
+    user: user,
+  };
+
+  if (!user_id) {
+    return res.redirect("/login");
+  }
+  res.render("urls_new", templateVars);
 });
 
 // POST route to remove URL
@@ -140,10 +160,7 @@ app.post("/urls/:id/delete", loggedIn, (req, res) => {
   if (!urlData) {
     return res.status(404).send("URL not found");
   }
-  if (!user_id) {
-    return res.redirect("/login");
-  }
-  if (url.userID !== user_id) {
+  if (urlData.userID !== user_id) {
     return res.status(403).send("You do not own this URL.");
   }
   delete urlDatabase[shortID];
@@ -151,16 +168,24 @@ app.post("/urls/:id/delete", loggedIn, (req, res) => {
 });
 
 //get/post to edit URL
-app.post("/urls/:id", (req, res) => {
-  const id = req.params.id;
+app.post("/urls/:id/edit", (req, res) => {
+  const shortUrl = req.params.id;
   const newLongUrl = req.body.newLongUrl;
+  const url = urlDatabase[shortUrl];
 
-  if (urlDatabase.hasOwnProperty(id)) {
-    urlDatabase[id].longUrl = newLongUrl;
-    res.redirect("/urls");
-  } else {
-    res.status(404).send("URL not found");
+  if (!url) {
+    return res.status(404).send("URL not found");
   }
+  const loggedInUserID = req.session.user_id;
+
+  if (!loggedInUserID) {
+    return res.status(401).send("You are not logged in.");
+  }
+  if (url.userID !== loggedInUserID) {
+    return res.status(403).send("You do not own this URL.");
+  }
+  url.longUrl = newLongUrl;
+  res.redirect("/urls");
 });
 
 app.get("/urls/:id/edit", (req, res) => {
@@ -170,8 +195,8 @@ app.get("/urls/:id/edit", (req, res) => {
   if (urlData) {
     res.render("urls_show", {
       id: id,
-      longUrl: urlData.longUrl,
-      shortUrl: urlData.short,
+      longUrl: urlData,
+      shortUrl: id,
     });
   } else {
     res.status(404).send("URL not found");
@@ -192,27 +217,6 @@ app.get("/urls/:id", loggedIn, (req, res) => {
     return res.status(403).send("You do not own this URL.");
   }
   res.render("urls_show", { url: urlData, user_id: user_id });
-});
-
-//updates URL
-app.post("/urls/:shortUrl", (req, res) => {
-  const shortUrl = req.params.shortUrl;
-  const newLongUrl = req.body.newLongUrl;
-  const url = urlDatabase[shortUrl];
-
-  if (!url) {
-    return res.status(404).send("URL not found");
-  }
-  const loggedInUserID = req.session.user_id;
-
-  if (!loggedInUserID) {
-    return res.status(401).send("You are not logged in.");
-  }
-  if (url.userID !== loggedInUserID) {
-    return res.status(403).send("You do not own this URL.");
-  }
-  url.longUrl = newLongUrl;
-  res.redirect("/urls");
 });
 
 // Function to get URLs for a specific user
@@ -237,19 +241,27 @@ app.get("/urls", loggedIn, (req, res) => {
   }
   const templateVars = {
     user: user,
-    urls: urlDatabase,
+    urls: urlsForUser(user_id),
   };
   res.render("urls_index", templateVars);
 });
 
-// GET route to show page
-app.get("/urls/new", loggedIn, (req, res) => {
+app.post("/urls", loggedIn, (req, res) => {
   const user_id = req.session.user_id;
+  const user = users[user_id];
+  const longUrl = req.body.longUrl;
+  const shortUrl = generateRandomString();
 
-  if (!user_id) {
-    return res.redirect("/login");
+  if (!longUrl) {
+    res.status(400).send("URL cannot be empty.");
   }
-  res.render("urls_new");
+
+  urlDatabase[shortUrl] = {
+    longUrl: longUrl,
+    userID: user_id,
+  };
+
+  res.redirect("/urls");
 });
 
 //new route to render urls_show.ejs
@@ -268,13 +280,6 @@ app.get("/urls/:id", (req, res) => {
     longUrl: urlData.longUrl,
     user: req.session.user_id,
   };
-  res.render("urls_show", templateVars);
-});
-
-app.get("/urls/:id", (req, res) => {
-  const shortID = req.params.id;
-  const longUrl = urlDatabase[shortID];
-  const templateVars = { id: shortID, longUrl: longUrl };
   res.render("urls_show", templateVars);
 });
 

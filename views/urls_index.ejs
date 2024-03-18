@@ -17,21 +17,7 @@
     <title>TinyApp</title>
   </head>
   <body>
-    <h1>Urls List</h1>
-    <ul>
-      <% Object.keys(urls).forEach(function(shortUrl) { %>
-      <li>
-        <a href="<%= urls[shortUrl].longUrl %>"><%= shortUrl %></a> - <%=
-        urls[shortUrl].longUrl %>
-        <form method="POST" action="/urls/<%= shortUrl %>/delete">
-          <button type="submit" class="delete-button">Delete</button>
-        </form>
-        <a href="/urls/<%= shortUrl %>/edit" class="edit-button">Edit</a>
-      </li>
-      <% }); %>
-    </ul>
-    <h2>Shorten a New Url</h2>
-    <a href="#">Shorten a New Url</a>
+    <%- include('partials/_header') %>
     <main style="margin: 1em">
       <h3>My Urls</h3>
       <table class="table">
@@ -39,17 +25,34 @@
           <tr>
             <th scope="col">Short Url ID</th>
             <th scope="col">Long Url</th>
+            <th>Delete</th>
+            <th>Edit</th>
           </tr>
         </thead>
         <tbody>
           <% for (let id in urls) { %>
           <tr>
-            <td><%= id %></td>
+            <td>
+              <a href="<%= urls[id].longUrl %>"><%= id %></a>
+            </td>
             <td><%= urls[id].longUrl %></td>
+            <th>
+              <form method="POST" action="/urls/<%= id %>/delete">
+                <button type="submit" class="btn btn-outline-danger">
+                  Delete
+                </button>
+              </form>
+            </th>
+            <th>
+              <a href="/urls/<%= id %>/edit" class="btn btn-outline-primary"
+                >Edit</a
+              >
+            </th>
           </tr>
           <% } %>
         </tbody>
       </table>
+      <a href="/urls/new"><button class="btn btn-primary">New URL</button></a>
     </main>
     <!-- Bootstrap JS -->
     <script
@@ -68,26 +71,4 @@
       crossorigin="anonymous"
     ></script>
   </body>
-  <style>
-    .delete-button {
-      color: red;
-      border: 2px solid red;
-      background-color: transparent;
-      padding: 0.5em 1em;
-      cursor: pointer;
-    }
-    .delete-button:hover {
-      background-color: rgba(255, 0, 0, 0.1);
-    }
-    .edit-button {
-      color: blue;
-      border: 2px solid blue;
-      background-color: transparent;
-      padding: 0.5em 1em;
-      cursor: pointer;
-    }
-    .edit-button:hover {
-      background-color: rgba(0, 0, 255, 0.1);
-    }
-  </style>
 </html>
