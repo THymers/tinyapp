@@ -4,16 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Registration Page</title>
+    <!-- Add any additional CSS stylesheets or links here -->
   </head>
   <body>
+    <%- include('partials/_header') %>
     <h1>Please Register</h1>
 
     <form action="/register" method="POST">
-      <label>Email:</label>
-      <input type="email" name="email" /><br />
-      <label>Password:</label>
-      <input type="password" name="password" /><br />
-      <input type="submit" value="Register" />
+      <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required />
+      </div>
+      <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required />
+      </div>
+      <div>
+        <input type="submit" value="Register" />
+      </div>
     </form>
   </body>
 </html>

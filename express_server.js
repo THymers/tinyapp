@@ -82,7 +82,7 @@ const loggedIn = (req, res, next) => {
 
 // get register route
 app.get("/register", (req, res) => {
-  res.render("register");
+  res.render("register", { user_id: req.session.user_id });
 });
 
 // Post register endpoint
@@ -133,7 +133,7 @@ app.post("/login", (req, res) => {
 
 //get route for login
 app.get("/login", (req, res) => {
-  res.render("login");
+  res.render("login", { user_id: req.session.user_id });
 });
 
 // GET route to show page
@@ -142,6 +142,7 @@ app.get("/urls/new", loggedIn, (req, res) => {
   const user = users[user_id];
 
   const templateVars = {
+    user_id: user_id,
     user: user,
   };
 
@@ -191,12 +192,14 @@ app.post("/urls/:id/edit", (req, res) => {
 app.get("/urls/:id/edit", (req, res) => {
   const id = req.params.id;
   const urlData = urlDatabase[id].longUrl;
+  const user_id = req.session.user_id;
 
   if (urlData) {
     res.render("urls_show", {
       id: id,
       longUrl: urlData,
       shortUrl: id,
+      user_id: user_id,
     });
   } else {
     res.status(404).send("URL not found");
@@ -213,10 +216,16 @@ app.get("/urls/:id", loggedIn, (req, res) => {
   if (!user_id) {
     return res.status(401).send("Please log in to see URL");
   }
-  if (url.userID !== user_id) {
+  if (urlData.userID !== user_id) {
     return res.status(403).send("You do not own this URL.");
   }
-  res.render("urls_show", { url: urlData, user_id: user_id });
+
+  const templateVars = {
+    user_id: user_id || null,
+    url: urlData,
+  };
+
+  res.render("urls_show", templateVars);
 });
 
 // Function to get URLs for a specific user
@@ -240,7 +249,7 @@ app.get("/urls", loggedIn, (req, res) => {
     return res.status(403).send("You must be signed in.");
   }
   const templateVars = {
-    user: user,
+    user_id: user_id, // Pass user_id to the template
     urls: urlsForUser(user_id),
   };
   res.render("urls_index", templateVars);
@@ -262,25 +271,6 @@ app.post("/urls", loggedIn, (req, res) => {
   };
 
   res.redirect("/urls");
-});
-
-//new route to render urls_show.ejs
-app.get("/urls/:id", (req, res) => {
-  const userData = users[req.session.user_id];
-  const urlData = urlDatabase[req.params.id];
-
-  if (!req.session.user_id) {
-    return res.status(401).send("You are not logged in.");
-  }
-  if (urlData.userID !== req.session.user_id) {
-    return res.status(403).send("You do not own this URL.");
-  }
-  const templateVars = {
-    id: req.session.user_id,
-    longUrl: urlData.longUrl,
-    user: req.session.user_id,
-  };
-  res.render("urls_show", templateVars);
 });
 
 //post to logout and clear cookies

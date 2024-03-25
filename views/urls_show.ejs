@@ -12,6 +12,7 @@
   </head>
 
   <body>
+    <%- include('partials/_header', { user_id: user_id }) %>
     <div class="container mt-5"></div>
     <div class="card text-center">
       <div class="card-header"></div>
@@ -24,11 +25,11 @@
       <div class="card-footer text-muted"></div>
     </div>
     <h1>URL Details</h1>
-    <p>Short Url: <%= url.shortUrl %></p>
-    <p>Long Url: <%= url.longUrl %></p>
+    <p>Short Url: <%= id %></p>
+    <p>Long Url: <%= longUrl %></p>
 
     <h1>Edit URL</h1>
-    <form action="/urls/<%= url.shortUrl %>/edit" method="post">
+    <form action="/urls/<%= id %>/edit" method="post">
       <label for="newLongUrl">New Long Url:</label>
       <input type="text" id="newLongUrl" name="newLongUrl" required />
       <button type="submit">Update</button>
