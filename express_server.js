@@ -46,6 +46,7 @@ app.use(
   cookieSession({
     name: "session",
     keys: ["key1", "key2"],
+    maxAge: 1 * 10 * 60 * 1000,
   })
 );
 
@@ -189,6 +190,7 @@ app.post("/urls/:id/edit", (req, res) => {
   res.redirect("/urls");
 });
 
+//get route to edit url
 app.get("/urls/:id/edit", (req, res) => {
   const id = req.params.id;
   const urlData = urlDatabase[id].longUrl;
@@ -255,6 +257,7 @@ app.get("/urls", loggedIn, (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+// POST route to create a new short URL and add it to the database
 app.post("/urls", loggedIn, (req, res) => {
   const user_id = req.session.user_id;
   const user = users[user_id];
@@ -271,6 +274,19 @@ app.post("/urls", loggedIn, (req, res) => {
   };
 
   res.redirect("/urls");
+});
+
+//get to redirect to long url
+app.get("/u/:id", loggedIn, (req, res) => {
+  const shortUrl = req.params.id;
+  const urlData = urlDatabase[shortUrl];
+  // console.log(shortUrl, urlData);
+  if (!urlData) {
+    return res.status(404).send("Short URL not found.");
+  }
+
+  const longUrl = urlData.longUrl;
+  res.redirect(longUrl);
 });
 
 //post to logout and clear cookies
